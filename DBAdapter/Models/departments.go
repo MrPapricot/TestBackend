@@ -6,7 +6,7 @@ import (
 
 type Department struct {
 	ID                  uint64            `gorm:"primaryKey;type:bigInt;autoIncrement;column:id" json:"id"`
-	Name                string            `gorm:"size:200;column:name;uniqueIndex" json:"name"`
+	Name                string            `gorm:"type:varchar(200);column:name;uniqueIndex" json:"name"`
 	EngineeringSchoolId uint32            `gorm:"column:engineering_school_id;not null;index" json:"engineering_school_id"`
 	EngineeringSchool   EngineeringSchool `gorm:"foreignKey:EngineeringSchoolId;references:ID" json:"engineering_school"`
 }

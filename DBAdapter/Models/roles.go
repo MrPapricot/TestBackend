@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Role struct {
 	ID   uint32 `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
-	Name string `gorm:"size:200;column:name" json:"name"`
+	Name string `gorm:"type:varchar(200);column:name;uniqueIndex" json:"name"`
 }
 
 func (role Role) TableName() string {

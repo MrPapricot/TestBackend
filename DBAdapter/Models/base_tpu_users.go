@@ -6,11 +6,11 @@ import (
 )
 
 type BaseTpuUser struct {
-	UUID       uuid.UUID `gorm:"primaryKey;default:gen_random_uuid();column:uuid" json:"uuid"`
-	FirstName  string    `grom:"column:first_name;size:100" json:"first_name"`
-	LastName   string    `grom:"column:last_name;size:100" json:"last_name"`
-	MiddleName string    `grom:"column:middle_name;size:100" json:"middle_name"`
-	Login      string    `gorm:"uniqueIndex;column:login" json:"login"`
+	UUID       uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid();column:uuid" json:"uuid"`
+	FirstName  string    `gorm:"column:first_name;type:varchar(100)" json:"first_name"`
+	LastName   string    `gorm:"column:last_name;type:varchar(100)" json:"last_name"`
+	MiddleName string    `gorm:"column:middle_name;type:varchar(100)" json:"middle_name"`
+	Login      string    `gorm:"uniqueIndex;column:login;type:varchar(10)" json:"login"`
 }
 
 func (user BaseTpuUser) TableName() string {

@@ -26,8 +26,16 @@ func InitAdapter(host string, port string, user string, password string, dbname 
 	return adapter
 }
 
-func (adapter *Adapter) GetAllUsers() []Models.BaseTpuUser {
-	return make([]Models.BaseTpuUser, 0)
+func (Adapter *Adapter) Blank() {
+
+}
+
+func (Adapter *Adapter) Close() {
+	db, err := Adapter.db.DB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	db.Close()
 }
 
 func (adapter *Adapter) migrate() {
@@ -64,5 +72,42 @@ func (adapter *Adapter) migrate() {
 	if err != nil {
 		log.Fatalf("Error migrating QualificationLevels\nError:\n%+v", err)
 	}
+	err = Models.MigrateGroups(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating Groups\nError:\n%+v", err)
+	}
+	err = Models.MigrateSpecializations(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating Specializations\nError:\n%+v", err)
+	}
+	err = Models.MigrateStudents(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating Students\nError:\n%+v", err)
+	}
+	err = Models.MigrateSubjectDirectionRelations(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating SubjectDirectionRelations\nError:\n%+v", err)
+	}
+	err = Models.MigrateSubjectSpecializationRelations(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating SubjectSpecializationRelations\nError:\n%+v", err)
+	}
+	err = Models.MigrateSubjectTutorRelations(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating SubjectTutorRelations\nError:\n%+v", err)
+	}
+	err = Models.MigrateSubjects(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating Subjects\nError:\n%+v", err)
+	}
+	err = Models.MigrateTrainingDirections(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating TrainingDirections\nError:\n%+v", err)
+	}
+	err = Models.MigrateTutorDepartmentRelations(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating TutorDepartmentRelations\nError:\n%+v", err)
+	}
+
 	log.Println("Successful Migration")
 }

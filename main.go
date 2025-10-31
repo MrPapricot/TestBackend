@@ -23,7 +23,7 @@ func main() {
 	PASSWORD := os.Getenv("PASSWORD")
 	DBNAME := os.Getenv("DBNAME")
 	adapter := DBAdapter.InitAdapter(HOST, DBPORT, USER, PASSWORD, DBNAME)
-	adapter.GetAllUsers()
+	defer adapter.Close()
 
 	engine := html.New("./html", ".html")
 	app := fiber.New(fiber.Config{

@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type QualificationLevel struct {
 	ID   uint32 `gorm:"primaryKey;type:smallInt;autoIncrement;column:id" json:"id"`
-	Name string `gorm:"size:200;column:name;uniqueIndex" json:"name"`
+	Name string `gorm:"type:varchar(200);column:name;uniqueIndex" json:"name"`
 }
 
 func (level QualificationLevel) TableName() string {

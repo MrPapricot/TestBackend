@@ -6,7 +6,7 @@ import (
 )
 
 type Student struct {
-	UUID            uuid.UUID     `gorm:"primaryKey;column:uuid" json:"uuid"`
+	UUID            uuid.UUID     `gorm:"primaryKey;type:uuid;column:uuid" json:"uuid"`
 	BaseUserUUID    uuid.UUID     `gorm:"not null;index;column:base_user_uuid" json:"base_user_id"`
 	BaseUser        BaseTpuUser   `gorm:"foreignKey:BaseUserUUID;references:UUID"`
 	StudentIDNumber string        `gorm:"size:200;column:student_id_number" json:"student_id_number"`
