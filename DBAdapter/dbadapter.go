@@ -1,81 +1,68 @@
 package DBAdapter
 
 import (
-	"backend/DBConnection"
-	"database/sql"
-	"errors"
+	"backend/DBAdapter/Models"
 	"fmt"
+	"log"
 
-	"github.com/google/uuid"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-type DBAdapter struct {
-	connection *sql.DB
+type Adapter struct {
+	db *gorm.DB
 }
 
-type BaseTpuUser struct {
-	UUID       uuid.UUID
-	Name       string
-	LastName   string
-	MiddleName string
-	Login      string
-}
-
-func InitAdapter(conn_info DBConnection.ConnectionInfo) (*DBAdapter, error) {
-	conn, err := DBConnection.InitConnection(conn_info)
+func InitAdapter(host string, port string, user string, password string, dbname string) Adapter {
+	query := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	db, err := gorm.Open(postgres.Open(query), &gorm.Config{})
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
-	return &DBAdapter{
-		connection: conn,
-	}, nil
+	adapter := Adapter{
+		db: db,
+	}
+	adapter.migrate()
+	return adapter
 }
 
-func (adapter *DBAdapter) GetBaseUserByUUID(uuid uuid.UUID) (*BaseTpuUser, error) {
-	query := `
-        SELECT uuid, name, last_name, middle_name, login 
-        FROM base_tpu_users 
-        WHERE uuid = $1
-    `
-
-	var base BaseTpuUser
-	err := adapter.connection.QueryRow(query, uuid).Scan(
-		&base.UUID,
-		&base.Name,
-		&base.LastName,
-		&base.MiddleName,
-		&base.Login,
-	)
-
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("user not found: %w", err)
-		}
-		return nil, fmt.Errorf("database error: %w", err)
-	}
-
-	return &base, nil
+func (adapter *Adapter) GetAllUsers() []Models.BaseTpuUser {
+	return make([]Models.BaseTpuUser, 0)
 }
 
-func (adapter *DBAdapter) GetAllBaseUsers() ([]BaseTpuUser, error) {
-	query := "SELECT * FROM base_tpu_users"
-	var (
-		users     []BaseTpuUser
-		next_user BaseTpuUser
-	)
-	res, err := adapter.connection.Query(query)
+func (adapter *Adapter) migrate() {
+	var err error
+	err = Models.MigrateBaseTpuUsers(adapter.db)
 	if err != nil {
-		return nil, err
+		log.Fatalf("Error migrating BaseTpuUsers\nError:\n%+v", err)
 	}
-	for res.Next() {
-		res.Scan(
-			&next_user.UUID,
-			&next_user.Name,
-			&next_user.LastName,
-			&next_user.MiddleName,
-			&next_user.Login,
-		)
-		users = append(users, next_user)
+	err = Models.MigrateEducationTypes(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating EducationTypes\nError:\n%+v", err)
 	}
-	return users, nil
+	err = Models.MigrateEngineeringSchools(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating EngineeringSchools\nError:\n%+v", err)
+	}
+	err = Models.MigrateDepartments(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating Departments\nError:\n%+v", err)
+	}
+	err = Models.MigrateTutors(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating Tutors\nError:\n%+v", err)
+	}
+	err = Models.MigrateRoles(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating Roles\nError:\n%+v", err)
+	}
+	err = Models.MigratePlanners(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating Planners\nError:\n%+v", err)
+	}
+	err = Models.MigrateQualificationLevels(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating QualificationLevels\nError:\n%+v", err)
+	}
+	log.Println("Successful Migration")
 }
