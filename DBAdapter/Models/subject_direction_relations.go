@@ -9,6 +9,8 @@ type SubjectDirectionRelation struct {
 	Subject             Subject           `gorm:"foreignKey:SubjectID;references:ID"`
 	TrainingDirectionID uint64            `gorm:"not null;index;column:training_direction_id"`
 	TrainingDirection   TrainingDirection `gorm:"foreignKey:TrainingDirectionID;references:ID"`
+	RelationTypeID      uint64            `gorm:"not null;index;column:relation_type_id"`
+	RelationType        RelationType      `gorm:"foreignKey:RelationTypeID;references:ID"`
 }
 
 func (relation SubjectDirectionRelation) TableName() string {
