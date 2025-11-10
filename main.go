@@ -10,6 +10,8 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const TEST_MODE bool = true
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -24,6 +26,10 @@ func main() {
 	DBNAME := os.Getenv("DBNAME")
 	adapter := DBAdapter.InitAdapter(HOST, DBPORT, USER, PASSWORD, DBNAME)
 	defer adapter.Close()
+
+	if TEST_MODE {
+		adapter.FillTestData()
+	}
 
 	engine := html.New("./html", ".html")
 	app := fiber.New(fiber.Config{

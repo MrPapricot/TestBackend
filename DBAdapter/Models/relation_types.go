@@ -5,8 +5,9 @@ import (
 )
 
 type RelationType struct {
-	ID   uint64 `gorm:"primaryKey;column:id"`
-	Name string `gorm:"type:varchar(100);column:name"`
+	ID   uint16 `gorm:"type:smallInt;primaryKey;column:id;autoIncrement"`
+	Code string `gorm:"uniqueIndex;column:code;type:varchar(20)"`
+	Name string `gorm:"uniqueIndex;type:varchar(200);column:name"`
 }
 
 func (relationType RelationType) TableName() string {

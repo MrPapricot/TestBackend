@@ -3,7 +3,7 @@ package Models
 import "gorm.io/gorm"
 
 type QualificationLevel struct {
-	ID   uint32 `gorm:"primaryKey;type:smallInt;autoIncrement;column:id" json:"id"`
+	ID   uint16 `gorm:"type:smallInt;primaryKey;type:smallInt;autoIncrement;column:id" json:"id"`
 	Name string `gorm:"type:varchar(200);column:name;uniqueIndex" json:"name"`
 }
 
