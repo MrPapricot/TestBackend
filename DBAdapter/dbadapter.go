@@ -461,6 +461,10 @@ func (adapter *Adapter) migrate() {
 	if err != nil {
 		log.Fatalf("Error migrating RealtionTypes\nError:\n%+v", err)
 	}
+	err = Models.MigrateRoadmaps(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating Roadmaps\nError:\n%+v", err)
+	}
 
 	log.Println("Successful Migration")
 }

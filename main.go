@@ -10,7 +10,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const TEST_MODE bool = true
+const TEST_MODE bool = false
 
 func main() {
 	err := godotenv.Load()
