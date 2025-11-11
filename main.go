@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/DBAdapter"
+	"backend/Handlers"
 	"log"
 	"os"
 
@@ -41,5 +42,6 @@ func main() {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Render("test", fiber.Map{})
 	})
+	app.Get("/test", Handlers.Test)
 	app.Listen(":" + PORT)
 }
