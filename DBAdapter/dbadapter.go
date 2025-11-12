@@ -2,9 +2,11 @@ package DBAdapter
 
 import (
 	"backend/DBAdapter/Models"
+	"errors"
 	"fmt"
 	"log"
 
+	"gorm.io/datatypes"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -465,6 +467,70 @@ func (adapter *Adapter) migrate() {
 	if err != nil {
 		log.Fatalf("Error migrating Roadmaps\nError:\n%+v", err)
 	}
+	err = Models.MigrateRoadmapNodes(adapter.db)
+	if err != nil {
+		log.Fatalf("Error migrating Roadmaps\nError:\n%+v", err)
+	}
 
 	log.Println("Successful Migration")
+}
+
+func (adapter *Adapter) CreateRoadmap(specialization_id uint64, data []datatypes.JSON) error {
+	var spec Models.Specialization
+	if err := adapter.db.First(&spec, specialization_id).Error; err != nil {
+		return fmt.Errorf("specialization with id %d doesn't exist", specialization_id)
+	}
+	return adapter.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("specialization_id = ?", specialization_id).Delete(&Models.Roadmap{}).Error; err != nil {
+			return fmt.Errorf("failed to delete existing roadmaps: %w", err)
+		}
+
+		// Создаем новую roadmap
+		roadmap := Models.Roadmap{
+			SpecializationID: specialization_id,
+		}
+
+		if err := tx.Create(&roadmap).Error; err != nil {
+			return fmt.Errorf("failed to create roadmap: %w", err)
+		}
+
+		// Создаем узлы
+		if len(data) > 0 {
+			nodes := make([]Models.RoadmapNode, len(data))
+			for i, jsonData := range data {
+				nodes[i] = Models.RoadmapNode{
+					RoadmapID: roadmap.ID,
+					JSONData:  jsonData,
+				}
+			}
+
+			if err := tx.Create(&nodes).Error; err != nil {
+				return fmt.Errorf("failed to create roadmap nodes: %w", err)
+			}
+		}
+
+		return nil
+	})
+}
+
+func (adapter *Adapter) GetRoadmapNodesJSON(specialization_id uint64) (uint64, []datatypes.JSON, error) {
+	var roadmap Models.Roadmap
+	if err := adapter.db.Where("specialization_id = ?", specialization_id).First(&roadmap).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, nil, fmt.Errorf("roadmap not found for specialization id %d", specialization_id)
+		}
+		return 0, nil, fmt.Errorf("something went wrong getting roadmap. Try again later")
+	}
+	var nodes []Models.RoadmapNode
+	if err := adapter.db.
+		Where("roadmap_id = ?", roadmap.ID).
+		Find(&nodes).Error; err != nil {
+		return 0, nil, fmt.Errorf("something went wrong getting nodes. Try again later")
+	}
+	var nodes_data []datatypes.JSON
+
+	for _, node := range nodes {
+		nodes_data = append(nodes_data, node.JSONData)
+	}
+	return roadmap.ID, nodes_data, nil
 }

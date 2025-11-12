@@ -42,6 +42,8 @@ func main() {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Render("test", fiber.Map{})
 	})
+	app.Put("/api/roadmaps/:id", Handlers.InsertRoadmap(&adapter))
+	app.Get("/api/roadmaps/:id", Handlers.GetRoadmap(&adapter))
 	app.Get("/test", Handlers.Test)
 	app.Listen(":" + PORT)
 }
